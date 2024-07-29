@@ -6,42 +6,65 @@ const likesMap = new Map();
 
 function apiRoutes(app) {
 	app.route('/api/stock-prices').get(async (request, response) => {
-		const symbol = request.query.stock?.toLowerCase().trim();
+		const symbols = Array.isArray(request.query.stock)
+			? request.query.stock
+			: [request.query.stock];
 
-		if (typeof symbol !== 'string' || symbol === '') {
-			response.status(400).json({error: 'No symbol'});
+		const stockData = [];
+
+		if (symbols.length > 2) {
+			response.status(400).json({ error: 'One or two stock(s) only' });
 			return;
 		}
 
-		let set = likesMap.get(symbol);
+		for (let symbol of symbols) {
+			if (typeof symbol !== 'string' || symbol === '') {
+				response.status(400).json({ error: 'No symbol' });
+				return;
+			}
 
-		if (set === undefined) {
-			set = new Set();
-			likesMap.set(symbol, set);
-		}
+			symbol = symbol.toLowerCase().trim();
 
-		if (request.query.like) {
-			set.add(crypto.hash('sha1', request.ip));
-		}
+			let set = likesMap.get(symbol);
 
-		const apiResponse = await fetch(
-			`https://stock-price-checker-proxy.freecodecamp.rocks/v1/stock/${symbol}/quote`,
-		);
+			if (set === undefined) {
+				set = new Set();
+				likesMap.set(symbol, set);
+			}
 
-		const json = await apiResponse.json();
+			if (request.query.like) {
+				set.add(crypto.hash('sha1', request.ip));
+			}
 
-		if (typeof json === 'string') {
-			response.status(404).json({error: json});
+			const apiResponse = await fetch(
+				`https://stock-price-checker-proxy.freecodecamp.rocks/v1/stock/${symbol}/quote`
+			);
 
-			return;
-		}
+			const json = await apiResponse.json();
 
-		response.json({
-			stockData: {
+			if (typeof json === 'string') {
+				response.status(404).json({ error: json });
+
+				return;
+			}
+
+			stockData.push({
 				stock: json.symbol,
 				price: json.latestPrice,
 				likes: set.size,
-			},
+			});
+		}
+
+		response.json({
+			stockData:
+				stockData.length === 1
+					? stockData[0]
+					: stockData.map((data, index) => ({
+							stock: data.symbol,
+							price: data.price,
+							// eslint-disable-next-line camelcase
+							rel_likes: data - stockData[1 - index].likes,
+						})),
 		});
 	});
 }

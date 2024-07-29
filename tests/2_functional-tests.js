@@ -19,7 +19,7 @@ suite('Functional Tests', () => {
 	it('Viewing one stock', (done) => {
 		requester
 			.get('/api/stock-prices')
-			.query({stock})
+			.query({ stock })
 			.end((error, response) => {
 				assert.strictEqual(response.status, 200);
 
@@ -30,7 +30,7 @@ suite('Functional Tests', () => {
 	it('Viewing one stock and liking it', (done) => {
 		requester
 			.get('/api/stock-prices')
-			.query({stock, like: 'true'})
+			.query({ stock, like: 'true' })
 			.send()
 			.end((error, response) => {
 				assert.strictEqual(response.status, 200);
@@ -42,7 +42,7 @@ suite('Functional Tests', () => {
 	it('Viewing the same stock and liking it again', (done) => {
 		requester
 			.get('/api/stock-prices')
-			.query({stock, like: 'true'})
+			.query({ stock, like: 'true' })
 			.send()
 			.end((error, response) => {
 				assert.strictEqual(response.status, 200);
@@ -52,62 +52,26 @@ suite('Functional Tests', () => {
 	});
 
 	it('Viewing two stocks', (done) => {
-		let dones = 0;
+		requester
+			.get('/api/stock-prices')
+			.query({ stock: [stock, stock2] })
+			.send()
+			.end((error, response) => {
+				assert.strictEqual(response.status, 200);
 
-		const doneOne = () => {
-			dones += 1;
-
-			if (dones > 1) {
 				done();
-			}
-		};
-
-		requester
-			.get('/api/stock-prices')
-			.query({stock})
-			.end((error, response) => {
-				assert.strictEqual(response.status, 200);
-
-				doneOne();
-			});
-
-		requester
-			.get('/api/stock-prices')
-			.query({stock: stock2})
-			.end((error, response) => {
-				assert.strictEqual(response.status, 200);
-
-				doneOne();
 			});
 	});
 
 	it('Viewing two stocks and liking them', (done) => {
-		let dones = 0;
+		requester
+			.get('/api/stock-prices')
+			.query({ stock: [stock, stock2], like: 'true' })
+			.send()
+			.end((error, response) => {
+				assert.strictEqual(response.status, 200);
 
-		const doneOne = () => {
-			dones += 1;
-
-			if (dones > 1) {
 				done();
-			}
-		};
-
-		requester
-			.get('/api/stock-prices')
-			.query({stock, like: 'true'})
-			.end((error, response) => {
-				assert.strictEqual(response.status, 200);
-
-				doneOne();
-			});
-
-		requester
-			.get('/api/stock-prices')
-			.query({stock: stock2, like: 'true'})
-			.end((error, response) => {
-				assert.strictEqual(response.status, 200);
-
-				doneOne();
 			});
 	});
 });
