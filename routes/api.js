@@ -10,16 +10,17 @@ function apiRoutes(app) {
 			? request.query.stock
 			: [request.query.stock];
 
-		const stockData = [];
+		const promises = [];
+		const sets = [];
 
 		if (symbols.length > 2) {
-			response.status(400).json({ error: 'One or two stock(s) only' });
+			response.status(400).json({error: 'One or two stock(s) only'});
 			return;
 		}
 
 		for (let symbol of symbols) {
 			if (typeof symbol !== 'string' || symbol === '') {
-				response.status(400).json({ error: 'No symbol' });
+				response.status(400).json({error: 'No symbol'});
 				return;
 			}
 
@@ -36,24 +37,31 @@ function apiRoutes(app) {
 				set.add(crypto.hash('sha1', request.ip));
 			}
 
-			const apiResponse = await fetch(
-				`https://stock-price-checker-proxy.freecodecamp.rocks/v1/stock/${symbol}/quote`
+			promises.push(
+				fetch(
+					`https://stock-price-checker-proxy.freecodecamp.rocks/v1/stock/${symbol}/quote`,
+				),
 			);
 
-			const json = await apiResponse.json();
+			sets.push(set);
+		}
 
+		const responses = await Promise.all(promises);
+		const jsons = responses.map((apiResponse) => apiResponse.json());
+
+		for (const json of jsons) {
 			if (typeof json === 'string') {
-				response.status(404).json({ error: json });
+				response.status(404).json({error: json});
 
 				return;
 			}
-
-			stockData.push({
-				stock: json.symbol,
-				price: json.latestPrice,
-				likes: set.size,
-			});
 		}
+
+		const stockData = jsons.map((json, index) => ({
+			symbol: json.symbol,
+			price: json.latestPrice,
+			likes: sets[index].size,
+		}));
 
 		response.json({
 			stockData:
