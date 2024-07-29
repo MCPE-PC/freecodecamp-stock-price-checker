@@ -3,7 +3,8 @@
 	"version": "0.0.1",
 	"description": "InfoSec project for freeCodeCamp",
 	"scripts": {
-		"start": "node server.js"
+		"start": "node server.js",
+		"test": "xo && npm start"
 	},
 	"dependencies": {
 		"body-parser": "^1.15.2",
@@ -15,6 +16,9 @@
 		"helmet": "^3.1.0",
 		"mocha": "^3.2.0"
 	},
+	"devDependencies": {
+		"xo": "^0.59.3"
+	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/freeCodeCamp/boilerplate-project-stockchecker"
@@ -23,5 +27,24 @@
 		"node",
 		"express"
 	],
-	"license": "MIT"
+	"license": "MIT",
+	"private": true,
+	"xo": {
+		"env": [
+			"es2021",
+			"node",
+			"browser",
+			"mocha"
+		],
+		"ignores": [
+			"assertion-analyser.js",
+			"routes/fcctesting.js",
+			"test-runner.js"
+		],
+		"rules": {
+			"unicorn/filename-case": "off",
+			"unicorn/prefer-module": "off"
+		},
+		"prettier": true
+	}
 }
