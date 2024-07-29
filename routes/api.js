@@ -1,6 +1,7 @@
 'use strict';
 
 const crypto = require('node:crypto');
+const Ipv4 = require('ip-num/IPv4.js').IPv4;
 
 const likesMap = new Map();
 
@@ -34,7 +35,7 @@ function apiRoutes(app) {
 			}
 
 			if (request.query.like) {
-				set.add(crypto.hash('sha1', request.ip));
+				set.add(crypto.hash('sha1', new Ipv4(request.ip).toBinaryString()));
 			}
 
 			promises.push(
@@ -47,7 +48,9 @@ function apiRoutes(app) {
 		}
 
 		const responses = await Promise.all(promises);
-		const jsons = responses.map((apiResponse) => apiResponse.json());
+		const jsons = await Promise.all(
+			responses.map((apiResponse) => apiResponse.json()),
+		);
 
 		for (const json of jsons) {
 			if (typeof json === 'string') {
@@ -58,7 +61,7 @@ function apiRoutes(app) {
 		}
 
 		const stockData = jsons.map((json, index) => ({
-			symbol: json.symbol,
+			stock: json.symbol,
 			price: json.latestPrice,
 			likes: sets[index].size,
 		}));
@@ -68,10 +71,10 @@ function apiRoutes(app) {
 				stockData.length === 1
 					? stockData[0]
 					: stockData.map((data, index) => ({
-							stock: data.symbol,
+							stock: data.stock,
 							price: data.price,
 							// eslint-disable-next-line camelcase
-							rel_likes: data - stockData[1 - index].likes,
+							rel_likes: data.likes - stockData[1 - index].likes,
 						})),
 		});
 	});
