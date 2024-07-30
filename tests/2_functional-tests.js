@@ -22,6 +22,8 @@ suite('Functional Tests', () => {
 			.query({stock})
 			.end((error, response) => {
 				assert.strictEqual(response.status, 200);
+				assert.strictEqual(response.body.stockData.stock, 'GOOG');
+				assert.strictEqual(response.body.stockData.likes, 0);
 
 				done();
 			});
@@ -34,6 +36,9 @@ suite('Functional Tests', () => {
 			.send()
 			.end((error, response) => {
 				assert.strictEqual(response.status, 200);
+				assert.hasAllKeys(response.body.stockData, ['stock', 'price', 'likes']);
+				assert.strictEqual(response.body.stockData.stock, 'GOOG');
+				assert.strictEqual(response.body.stockData.likes, 1);
 
 				done();
 			});
@@ -46,6 +51,9 @@ suite('Functional Tests', () => {
 			.send()
 			.end((error, response) => {
 				assert.strictEqual(response.status, 200);
+				assert.hasAllKeys(response.body.stockData, ['stock', 'price', 'likes']);
+				assert.strictEqual(response.body.stockData.stock, 'GOOG');
+				assert.strictEqual(response.body.stockData.likes, 1);
 
 				done();
 			});
@@ -58,6 +66,17 @@ suite('Functional Tests', () => {
 			.send()
 			.end((error, response) => {
 				assert.strictEqual(response.status, 200);
+				assert.isArray(response.body.stockData);
+				assert.strictEqual(response.body.stockData.length, 2);
+				assert.hasAllKeys(response.body.stockData[0], [
+					'stock',
+					'price',
+					'rel_likes',
+				]);
+				assert.strictEqual(response.body.stockData[0].stock, 'GOOG');
+				assert.strictEqual(response.body.stockData[0].rel_likes, 1);
+				assert.strictEqual(response.body.stockData[1].stock, 'MSFT');
+				assert.strictEqual(response.body.stockData[1].rel_likes, -1);
 
 				done();
 			});
@@ -70,6 +89,17 @@ suite('Functional Tests', () => {
 			.send()
 			.end((error, response) => {
 				assert.strictEqual(response.status, 200);
+				assert.isArray(response.body.stockData);
+				assert.strictEqual(response.body.stockData.length, 2);
+				assert.hasAllKeys(response.body.stockData[0], [
+					'stock',
+					'price',
+					'rel_likes',
+				]);
+				assert.strictEqual(response.body.stockData[0].stock, 'GOOG');
+				assert.strictEqual(response.body.stockData[0].rel_likes, 0);
+				assert.strictEqual(response.body.stockData[1].stock, 'MSFT');
+				assert.strictEqual(response.body.stockData[1].rel_likes, 0);
 
 				done();
 			});
