@@ -1,7 +1,7 @@
 'use strict';
 
 const crypto = require('node:crypto');
-const Ipv4 = require('ip-num/IPv4.js').IPv4;
+const Ipv4 = require('ip-num/IPNumber.js').IPv4;
 
 const likesMap = new Map();
 
