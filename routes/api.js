@@ -1,7 +1,7 @@
 'use strict';
 
 const crypto = require('node:crypto');
-const Ipv4 = require('ip-num/IPNumber.js').IPv4;
+const ipaddr = require('ipaddr.js');
 
 const likesMap = new Map();
 
@@ -35,7 +35,9 @@ function apiRoutes(app) {
 			}
 
 			if (request.query.like) {
-				set.add(crypto.hash('sha1', new Ipv4(request.ip).toBinaryString()));
+				set.add(
+					crypto.hash('sha1', ipaddr.process(request.ip).toNormalizedString()),
+				);
 			}
 
 			promises.push(

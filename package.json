@@ -14,7 +14,7 @@
 		"dotenv": "^8.2.0",
 		"express": "^4.14.0",
 		"helmet": "^3.1.0",
-		"ip-num": "^1.5.1",
+		"ipaddr.js": "^2.2.0",
 		"mocha": "^3.2.0"
 	},
 	"devDependencies": {
